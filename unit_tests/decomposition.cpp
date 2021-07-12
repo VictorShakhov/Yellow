@@ -51,7 +51,7 @@ istream& operator >> (istream& is, Query& q) {
 struct BusesForStopResponse {
     bool exist;
     string stop;
-    map<string, vector<string>> buses;
+    map<string, vector<string>> stops_to_buses;
 };
 
 ostream& operator << (ostream& os, const BusesForStopResponse& r) {
@@ -60,13 +60,14 @@ ostream& operator << (ostream& os, const BusesForStopResponse& r) {
         return os;
     }
     bool first = true;
-    for(const auto& bus : r.buses.at(r.stop)) {
+    for(const auto& bus : r.stops_to_buses.at(r.stop)) {
         if(!first) {
             os << " ";
         }
         first = false;
         os << bus;
     }
+    os << r.stops_to_buses.at(r.stop).size();
     return os;
 }
 
@@ -120,40 +121,40 @@ ostream& operator << (ostream& os, const AllBusesResponse& r) {
 class BusManager {
 public:
   void AddBus(const string& bus, const vector<string>& stops) {
-    stops_for_bus[bus] = stops;
+    buses_to_stops[bus] = stops;
     for(const auto& stop : stops) {
-      buses_for_stop[stop].push_back(bus);
+      stops_to_buses[stop].push_back(bus);
     }
   }
 
   BusesForStopResponse GetBusesForStop(const string& stop) const {
     BusesForStopResponse response;
-    response.exist = buses_for_stop.find(stop) != buses_for_stop.end();
+    response.exist = stops_to_buses.find(stop) != stops_to_buses.end();
     response.stop = stop;
-    response.buses = buses_for_stop;
+    response.stops_to_buses = stops_to_buses;
     return response;
   }
 
   StopsForBusResponse GetStopsForBus(const string& bus) const {
     StopsForBusResponse response;
-    response.exist = stops_for_bus.find(bus) != stops_for_bus.end();
+    response.exist = buses_to_stops.find(bus) != buses_to_stops.end();
     response.bus = bus;
-    response.stops = stops_for_bus;
+    response.stops = buses_to_stops;
     return response;
   }
 
   AllBusesResponse GetAllBuses() const {
     AllBusesResponse response;
-    if(stops_for_bus.empty()) {
+    if(buses_to_stops.empty()) {
       response.exist = false;
     } else {
       response.exist = true;
     }
-    response.buses = stops_for_bus;
+    response.buses = buses_to_stops;
     return response;
   }
 private:
-  map<string, vector<string>> buses_for_stop, stops_for_bus;
+  map<string, vector<string>> buses_to_stops, stops_to_buses;
 };
 
 // Не меняя тела функции main, реализуйте функции и классы выше
