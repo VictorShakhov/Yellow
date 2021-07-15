@@ -29,10 +29,12 @@ istream& operator >> (istream& is, Query& q) {
     int n;
     is >> n;
     string stop;
+    vector<string> stops;
     for(int i = 0; i < n; ++i) {
       is >> stop;
-      q.stops.push_back(stop);
+      stops.push_back(stop);
     }
+    q.stops = stops;
     return is;
   } else if(request == "BUSES_FOR_STOP") {
     q.type = QueryType::BusesForStop;
@@ -67,14 +69,14 @@ ostream& operator << (ostream& os, const BusesForStopResponse& r) {
         first = false;
         os << bus;
     }
-    os << r.stops_to_buses.at(r.stop).size();
     return os;
 }
 
 struct StopsForBusResponse {
     bool exist;
     string bus;
-    map<string, vector<string>> stops;
+    map<string, vector<string>> stops_to_buses;
+    map<string, vector<string>> buses_to_stops;
 };
 
 ostream& operator << (ostream& os, const StopsForBusResponse& r) {
@@ -82,12 +84,12 @@ ostream& operator << (ostream& os, const StopsForBusResponse& r) {
       os << "No bus";
       return os;
     }
-    for(const auto& stop : r.stops) {
-      os << "Stop " << stop.first << ":";
-      if(stop.second.size() == 1) {
+    for(const auto& stop : r.buses_to_stops.at(r.bus)) {
+      os << "Stop " << stop << ":";
+      if(r.stops_to_buses.at(stop).size() == 1) {
         os << " no interchange";
       } else {
-        for(const auto& bus : stop.second) {
+        for(const auto& bus : r.stops_to_buses.at(stop)) {
           if(bus != r.bus) {
             os << " " << bus;
           }
@@ -139,7 +141,8 @@ public:
     StopsForBusResponse response;
     response.exist = buses_to_stops.find(bus) != buses_to_stops.end();
     response.bus = bus;
-    response.stops = buses_to_stops;
+    response.buses_to_stops = buses_to_stops;
+    response.stops_to_buses = stops_to_buses;
     return response;
   }
 
