@@ -8,8 +8,13 @@ class Human {
 public:
     Human(const string& type_, const string& name_) : type(type_), name(name_) {};
 
-    void Walk(const string& destination) const {
-        cout << type << ": " << name << " walks to: " << destination << endl;
+    virtual void Walk(const string& destination) const {
+        PrintName();
+        cout << " walks to: " << destination << endl;
+    }
+
+    void PrintName() const {
+        cout << type << ": " << name;
     }
 
     const string type;
@@ -26,13 +31,14 @@ public:
         cout << "Student: " << name << " learns" << endl;
     }
 
-    void Walk(string destination) const {
+    void Walk(const string& destination) const {
         Human::Walk(destination);
-        cout << "Student: " << name << " sings a song: " << favourite_song << endl;
+        SingSong();        
     }
 
     void SingSong() const {
-        cout << "Student: " << name << " sings a song: " << favourite_song << endl;
+        PrintName();
+        cout << " sings a song: " << favourite_song << endl;
     }
 
 private:
@@ -47,7 +53,8 @@ public:
     }
 
     void Teach() const{
-        cout << "Teacher: " << name << " teaches: " << subject << endl;
+        PrintName();
+        cout << " teaches: " << subject << endl;
     }
 
 private:
@@ -61,7 +68,8 @@ public:
     }
 
     void Check(Human h) {
-        cout << "Policeman: " << name << " checks " << h.type << ". " << h.type << "'s name is: " << h.name << endl;
+        PrintName();
+        cout << " checks " << h.type << ". " << h.type << "'s name is: " << h.name << endl;
     }
 };
 

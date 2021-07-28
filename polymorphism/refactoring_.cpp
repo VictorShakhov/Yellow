@@ -1,101 +1,120 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <memory>
+#include <typeinfo>
 
 using namespace std;
 
-class Profession
+template <typename T>
+string GetType(const T &object)
+{
+    string type = typeid(object).name();
+    return string(type.begin() + 1, type.end());
+}
+
+class People
 {
 public:
-    Profession(string& name, string profession) : name_(name), profession_(profession) {};
-    virtual void Learn()
+    People(const string &_name)
+        : Name(_name)
     {
-        cout << profession_ << " " << name_ << " dont learn!" << endl;
-    };
-    virtual void Walk(string destination) = 0;
-    virtual void Teach()
-    {
-        cout << profession_ << " " << name_ << " dont teach!" << endl;
-    };
-    virtual void Check(Profession& p)
-    {
-        cout << profession_ << " " << name_ << " dont check!" << endl;
-    };
-    void PrintWalk(string destination)
-    {
-        cout << profession_ << ": " << name_ << " walks to: " << destination << endl;
-    };
-    const string name_;
-    const string profession_;
-};
-
-class Student : public Profession
-{
-public:
-
-    Student(string name, string favouriteSong) : Profession(name, "Student"), FavouriteSong(favouriteSong) {}
-
-    virtual void Learn()
-    {
-        cout << profession_ << ": " << name_ << " learns" << endl;
     }
 
-    void Walk(string destination)
+    string GetName() const
     {
-        PrintWalk(destination);
-        SingSong();
+        return Name;
+    }
+
+    virtual void Walk(const string &destination) const = 0;
+
+    virtual void Check(const People &p) const {};
+
+protected:
+    void Print(const string &source, const string &target = "") const
+    {
+        cout << GetType(*this) << ": " << Name << source << target << endl;
+    }
+    const string Name;
+};
+
+class Student : public People
+{
+public:
+    Student(const string &_name, const string &_favouriteSong)
+        : People(_name),
+          FavouriteSong(_favouriteSong)
+    {
+    }
+
+    void Walk(const string &destination) const override
+    {
+        Print(" walks to: ", destination);
+        Print(" sings a song: ", FavouriteSong);
+    }
+
+    void Learn()
+    {
+        Print(" learns");
     }
 
     void SingSong()
     {
-        cout << profession_ << ": " << name_ << " sings a song: " << FavouriteSong << endl;
+        Print(" sings a song: ", FavouriteSong);
     }
 
-public:
+private:
     const string FavouriteSong;
 };
 
-
-class Teacher : public Profession
+class Teacher : public People
 {
 public:
-
-    Teacher(string name, string subject) : Profession(name, "Teacher"), Subject(subject) {}
-
-    virtual void Teach()
+    Teacher(const string &_name, const string &_subject)
+        : People(_name),
+          Subject(_subject)
     {
-        cout << profession_ << ": " << name_ << " teaches: " << Subject << endl;
     }
 
-    virtual void Walk(string destination)
+    void Walk(const string &destination) const override
     {
-        PrintWalk(destination);
+        Print(" walks to: ", destination);
     }
 
-public:
+    void Teach()
+    {
+        Print(" teaches: ", Subject);
+    }
+
+private:
     const string Subject;
 };
 
-
-class Policeman : public Profession {
+class Policeman : public People
+{
 public:
-    Policeman(string name) : Profession(name, "Policeman") {}
-
-    void Check(Profession& t)
+    Policeman(const string &_name)
+        : People(_name)
     {
-        cout << profession_ << ": " << name_ << " checks " << t.profession_ << ". " << t.profession_ << "'s name is: " << t.name_ << endl;
     }
 
-    virtual void Walk(string destination)
+    void Walk(const string &destination) const override
     {
-        PrintWalk(destination);
+        Print(" walks to: ", destination);
+    }
+
+    void Check(const People &p) const
+    {
+        string type = GetType(p);
+        cout << "Policeman: " << Name << " checks " << type << ". " << type << "'s name is: " << p.GetName() << endl;
     }
 };
 
-void VisitPlaces(Profession& profession, vector<string> places)
+void VisitPlaces(const People &human, const vector<string> &places)
 {
-    for (auto p : places) {
-        profession.Walk(p);
+    for (const auto &p : places)
+    {
+        human.Walk(p);
     }
 }
 
@@ -104,15 +123,9 @@ int main()
     Teacher t("Jim", "Math");
     Student s("Ann", "We will rock you");
     Policeman p("Bob");
-    s.Check(t);
-    t.Learn();
-    s.Learn();
-    t.Teach();
-    p.Learn();
-    p.Teach();
 
-    VisitPlaces(t, { "Moscow", "London" });
+    VisitPlaces(t, {"Moscow", "London"});
     p.Check(s);
-    VisitPlaces(s, { "Moscow", "London" });
+    VisitPlaces(s, {"Moscow", "London"});
     return 0;
 }
