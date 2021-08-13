@@ -5,6 +5,7 @@
 #include <set>
 #include <iostream>
 #include <sstream>
+#include <vector>
 
 using namespace std;
 
@@ -13,6 +14,9 @@ ostream& operator << (ostream& os, const set<T>& s);
 
 template <class K, class V>
 ostream& operator << (ostream& os, const map<K, V>& m);
+
+template <class T>
+ostream& operator<<(ostream& os, const vector<T>& v);
 
 template<class T, class U>
 void AssertEqual(const T& t, const U& u, const string& hint);
@@ -57,6 +61,21 @@ ostream& operator << (ostream& os, const map<K, V>& m) {
   }
   return os << "}";
 }
+
+template <class T>
+ostream& operator<<(ostream& os, const vector<T>& v) {
+  os << "[";
+  bool first = true;
+  for(const auto& x : v) {
+    if(!first) {
+      os << ", ";
+    }
+    first = false;
+    os << x;
+  }
+  return os;
+}
+
 
 template<class T, class U>
 void AssertEqual(const T& t, const U& u,

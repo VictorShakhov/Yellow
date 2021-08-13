@@ -6,43 +6,34 @@
 
 using namespace std;
 
-template <typename T>
-string GetType(const T &object)
-{
-    string type = typeid(object).name();
-    return string(type.begin() + 1, type.end());
-}
-
 class People
 {
 public:
-    People(const string &_name)
-        : Name(_name)
+    People(const string &_name, const string &_type)
+        : Name(_name),
+        Type(_type)
     {
     }
 
-    string GetName() const
-    {
-        return Name;
+    virtual void Walk(const string &destination) const{
+        Print(" walks to: ", destination);
     }
 
-    virtual void Walk(const string &destination) const = 0;
-
-    virtual void Check(const People &p) const {};
+    const string Name;
+    const string Type;
 
 protected:
     void Print(const string &source, const string &target = "") const
     {
-        cout << GetType(*this) << ": " << Name << source << target << endl;
+        cout << Type << ": " << Name << source << target << endl;
     }
-    const string Name;
 };
 
 class Student : public People
 {
 public:
     Student(const string &_name, const string &_favouriteSong)
-        : People(_name),
+        : People(_name,"Student"),
           FavouriteSong(_favouriteSong)
     {
     }
@@ -71,14 +62,9 @@ class Teacher : public People
 {
 public:
     Teacher(const string &_name, const string &_subject)
-        : People(_name),
+        : People(_name,"Teacher"),
           Subject(_subject)
     {
-    }
-
-    void Walk(const string &destination) const override
-    {
-        Print(" walks to: ", destination);
     }
 
     void Teach()
@@ -94,19 +80,13 @@ class Policeman : public People
 {
 public:
     Policeman(const string &_name)
-        : People(_name)
+        : People(_name,"Policeman")
     {
-    }
-
-    void Walk(const string &destination) const override
-    {
-        Print(" walks to: ", destination);
     }
 
     void Check(const People &p) const
     {
-        string type = GetType(p);
-        cout << "Policeman: " << Name << " checks " << type << ". " << type << "'s name is: " << p.GetName() << endl;
+        cout << "Policeman: " << Name << " checks " << p.Type << ". " << p.Type << "'s name is: " << p.Name << endl;
     }
 };
 
@@ -125,7 +105,12 @@ int main()
     Policeman p("Bob");
 
     VisitPlaces(t, {"Moscow", "London"});
+    VisitPlaces(p, {"Aksay", "Bikin"});
+    VisitPlaces(s, {"Chita", "Dubovka"});
+    t.Teach();
+    s.Learn();
+    s.SingSong();
     p.Check(s);
-    VisitPlaces(s, {"Moscow", "London"});
+    p.Check(t);
     return 0;
 }
